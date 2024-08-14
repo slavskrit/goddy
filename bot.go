@@ -87,9 +87,13 @@ func MainHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 			log.Info("Text does not contain an Instagram or X link.")
 		}
 	}
+}
+
+func processMessage(ctx context.Context, b *bot.Bot, msg *models.Message, text, mainURL string) {
+	log.Info("Found %s link in the text: %s", mainURL, text)
 	b.SetMessageReaction(ctx, &bot.SetMessageReactionParams{
-		ChatID:    update.Message.Chat.ID,
-		MessageID: update.Message.ID,
+		ChatID:    msg.Chat.ID,
+		MessageID: msg.ID,
 		Reaction: []models.ReactionType{
 			{Type: models.ReactionTypeTypeEmoji,
 				ReactionTypeEmoji: &models.ReactionTypeEmoji{
@@ -97,10 +101,6 @@ func MainHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 				}},
 		},
 	})
-}
-
-func processMessage(ctx context.Context, b *bot.Bot, msg *models.Message, text, mainURL string) {
-	log.Info("Found %s link in the text: %s", mainURL, text)
 	if url := extractLink(text, mainURL); url != "" {
 		downloadedVideo := download(url)
 		fileName := downloadedVideo.Name()

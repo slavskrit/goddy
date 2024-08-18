@@ -17,11 +17,6 @@ import (
 	"github.com/wader/goutubedl"
 )
 
-const (
-	InstagramMainURL = "https://www.instagram.com/"
-	XMainURL         = "https://x.com/"
-)
-
 func main() {
 	token := os.Getenv("TELEGRAM_TOKEN")
 	if token == "" {
@@ -79,12 +74,17 @@ func DownloadFile(url string, filepath string) error {
 func MainHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	if update.Message != nil && update.Message.Text != "" {
 		text := update.Message.Text
-		if strings.Contains(text, XMainURL) {
-			processMessage(ctx, b, update.Message, text, XMainURL)
-		} else if strings.Contains(text, InstagramMainURL) {
-			processMessage(ctx, b, update.Message, text, InstagramMainURL)
-		} else {
-			log.Info("Text does not contain an Instagram or X link.")
+
+		allowed_hosts := []string{
+			"https://www.instagram.com/",
+			"https://x.com/",
+			"https://www.tiktok.com/",
+		}
+
+		for _, hostUrl := range allowed_hosts {
+			if strings.Contains(text, hostUrl) {
+				processMessage(ctx, b, update.Message, text, hostUrl)
+			}
 		}
 	}
 }
